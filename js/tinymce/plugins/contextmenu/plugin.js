@@ -52,6 +52,9 @@ tinymce.PluginManager.add('contextmenu', function(editor) {
 				}
 			});
 
+			items.push({text: '|'});
+			items.push({text: '(Use Ctrl+RightClick for browser menu)', disabled: true});
+
 			for (var i = 0; i < items.length; i++) {
 				if (items[i].text == '|') {
 					if (i === 0 || i == items.length - 1) {
