@@ -10,8 +10,8 @@
 
 /*global tinymce:true */
 
-tinymce.PluginManager.add('visualblocks', function(editor, url) {
-	var cssId, visualBlocksMenuItem, enabled;
+tinymce.PluginManager.add('visualblocks', function(editor) {
+	var visualBlocksMenuItem, enabled;
 
 	// We don't support older browsers like IE6/7 and they don't provide prototypes for DOM objects
 	if (!window.NodeList) {
@@ -29,18 +29,7 @@ tinymce.PluginManager.add('visualblocks', function(editor, url) {
 	}
 
 	editor.addCommand('mceVisualBlocks', function() {
-		var dom = editor.dom, linkElm;
-
-		if (!cssId) {
-			cssId = dom.uniqueId();
-			linkElm = dom.create('link', {
-				id: cssId,
-				rel: 'stylesheet',
-				href: url + '/css/visualblocks.css'
-			});
-
-			editor.getDoc().getElementsByTagName('head')[0].appendChild(linkElm);
-		}
+		var dom = editor.dom;
 
 		// Toggle on/off visual blocks while computing previews
 		editor.on("PreviewFormats AfterPreviewFormats", function(e) {
