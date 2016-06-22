@@ -89,6 +89,22 @@ define("tinymce/tableplugin/Dialogs", [
 			};
 		}
 
+		function getSpanVal(td, name) {
+			return parseInt(td.getAttribute(name) || 1, 10);
+		}
+
+		function setSpanVal(td, name, val) {
+			if (td) {
+				val = parseInt(val, 10);
+
+				if (isNaN(val) || (val < 2)) {
+					td.removeAttribute(name, 1);
+				} else {
+					td.setAttribute(name, val, 1);
+				}
+			}
+		}
+
 		function removePxSuffix(size) {
 			return size ? size.replace(/px$/, '') : "";
 		}
@@ -459,6 +475,9 @@ define("tinymce/tableplugin/Dialogs", [
 							'class': data['class']
 						});
 
+						setSpanVal(cellElm, 'colspan', data.colspan);
+						setSpanVal(cellElm, 'rowspan', data.rowspan);
+
 						editor.dom.setStyles(cellElm, {
 							width: addSizeSuffix(data.width),
 							height: addSizeSuffix(data.height)
@@ -503,6 +522,8 @@ define("tinymce/tableplugin/Dialogs", [
 			data = {
 				width: removePxSuffix(dom.getStyle(cellElm, 'width') || dom.getAttrib(cellElm, 'width')),
 				height: removePxSuffix(dom.getStyle(cellElm, 'height') || dom.getAttrib(cellElm, 'height')),
+				colspan: getSpanVal(cellElm, 'colspan'),
+				rowspan: getSpanVal(cellElm, 'rowspan'),
 				scope: dom.getAttrib(cellElm, 'scope'),
 				'class': dom.getAttrib(cellElm, 'class')
 			};
@@ -559,6 +580,8 @@ define("tinymce/tableplugin/Dialogs", [
 						items: [
 							{label: 'Width', name: 'width'},
 							{label: 'Height', name: 'height'},
+							{label: 'Columns', name: 'colspan'},
+							{label: 'Rows', name: 'rowspan'},
 							{
 								label: 'Cell type',
 								name: 'type',

@@ -343,6 +343,8 @@
 			"align": "",
 			"valign": "",
 			"height": "",
+			"colspan": "1",
+			"rowspan": "1",
 			"scope": "",
 			"type": "td",
 			"width": "",
@@ -365,7 +367,9 @@
 			"height": "",
 			"scope": "",
 			"type": "td",
-			"width": ""
+			"width": "",
+			"colspan": "1",
+			"rowspan": "1"
 		});
 
 		fillAndSubmitWindowForm({
@@ -380,7 +384,7 @@
 	});
 
 	test("Table cell properties dialog (get data from complex cell)", function() {
-		editor.setContent('<table><tr><th style="text-align: right; vertical-align: top; width: 10px; height: 11px; border-color: red; background-color: blue" scope="row">X</th></tr></table>');
+		editor.setContent('<table><tr><th colspan="2" rowspan="3" style="text-align: right; vertical-align: top; width: 10px; height: 11px; border-color: red; background-color: blue" scope="row">X</th></tr></table>');
 		Utils.setSelection('th', 0);
 		editor.execCommand('mceTableCellProps');
 
@@ -388,6 +392,8 @@
 			"align": "right",
 			"valign": "top",
 			"height": "11",
+			"colspan": "2",
+			"rowspan": "3",
 			"scope": "row",
 			"type": "th",
 			"width": "10",
@@ -553,6 +559,13 @@
 			cleanTableHtml(editor.getContent()),
 			'<table><tbody><tr><td>12</td><td>&nbsp;</td></tr></tbody></table>'
 		);
+	});
+
+	test("mceTableSplitTableBeforeRow command", function() {
+		editor.setContent('<table><thead><tr><td>1</td><td>2</td></tr></thead><tbody><tr><td rowspan="2">3</td><td>4</td></tr><tr><td>5</td></tr></tbody></table>');
+		Utils.setSelection('tbody tr:nth-child(2)', 0);
+		editor.execCommand('mceTableSplitTableBeforeRow');
+		equal(cleanTableHtml(editor.getContent()), '<table><thead><tr><td>1</td><td>2</td></tr></thead><tbody><tr><td>3</td><td>4</td></tr></tbody></table><p>&nbsp;</p><table><thead><tr><td>1</td><td>2</td></tr></thead><tbody><tr><td>3</td><td>5</td></tr></tbody></table>');
 	});
 
 	test("Tab key navigation", function() {

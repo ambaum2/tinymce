@@ -34,7 +34,8 @@ tinymce.PluginManager.add('autoresize', function(editor) {
 	 */
 	function resize(e) {
 		var deltaSize, doc, body, docElm, DOM = tinymce.DOM, resizeHeight, myHeight,
-			marginTop, marginBottom, paddingTop, paddingBottom, borderTop, borderBottom;
+			marginTop, marginBottom, paddingTop, paddingBottom, borderTop, borderBottom,
+			currentMaxHeight = settings.autoresize_max_height;
 
 		doc = editor.getDoc();
 		if (!doc) {
@@ -76,9 +77,14 @@ tinymce.PluginManager.add('autoresize', function(editor) {
 			resizeHeight = myHeight;
 		}
 
+		// If user wants to keep within browser viewport height, set max_height if needed
+		if (settings.autoresize_viewport_offset && window.innerHeight) {
+			currentMaxHeight = Math.min(window.innerHeight - settings.autoresize_viewport_offset, currentMaxHeight);
+		}
+
 		// If a maximum height has been defined don't exceed this height
-		if (settings.autoresize_max_height && myHeight > settings.autoresize_max_height) {
-			resizeHeight = settings.autoresize_max_height;
+		if ((currentMaxHeight > 0) && myHeight > currentMaxHeight) {
+			resizeHeight = currentMaxHeight;
 			body.style.overflowY = "auto";
 			docElm.style.overflowY = "auto"; // Old IE
 		} else {
@@ -122,6 +128,9 @@ tinymce.PluginManager.add('autoresize', function(editor) {
 
 	// Define maximum height
 	settings.autoresize_max_height = parseInt(editor.getParam('autoresize_max_height', 0), 10);
+
+	// Define don't exceed browser viewport height
+	settings.autoresize_viewport_offset = parseInt(editor.getParam('autoresize_viewport_offset', 0), 10);
 
 	// Add padding at the bottom for better UX
 	editor.on("init", function() {
