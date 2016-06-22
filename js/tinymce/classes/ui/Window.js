@@ -146,7 +146,7 @@ define("tinymce/ui/Window", [
 					spacing: 3,
 					padding: 10,
 					align: 'center',
-					pack: self.isRtl() ? 'start' : 'end',
+					pack: !self.isRtl() ? 'start' : 'end',
 					defaults: {
 						type: 'button'
 					},
