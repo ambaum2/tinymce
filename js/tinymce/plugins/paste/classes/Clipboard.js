@@ -304,7 +304,7 @@ define("tinymce/pasteplugin/Clipboard", [
 				if (dataTransfer.types) {
 					for (var i = 0; i < dataTransfer.types.length; i++) {
 						var contentType = dataTransfer.types[i];
-						items[contentType] = dataTransfer.getData(contentType);
+						items[contentType] = dataTransfer[contentType.toLowerCase()] || dataTransfer.getData(contentType);
 					}
 				}
 			}
