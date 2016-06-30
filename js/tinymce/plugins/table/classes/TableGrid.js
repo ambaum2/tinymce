@@ -422,8 +422,11 @@ define("tinymce/tableplugin/TableGrid", [
 
 		function splitTableBeforeRow() {
 			var posY, cell, newCell, x, lastCell, rowSpan, rowSpan1, rowSpan2, pos,
-				rowElm, tableElm, newTableElm, newRow, brElm, thead, newThead, bodyElm;
+				rowElm, tableElm, newTableElm, newRow, thead, newThead, bodyElm,
+				r, bef, aft, pa;
 
+			// Find the currently selected cell/row in the table so we know where to
+			// split from
 			each(grid, function(row, y) {
 				each(row, function(cell) {
 					if (isCellSelected(cell)) {
@@ -461,7 +464,7 @@ define("tinymce/tableplugin/TableGrid", [
 
 						setSpanVal(cell, 'rowSpan', rowSpan1);
 
-						newCell = cloneNode(cell, true);
+						newCell = fireNewCell(cloneNode(cell, true));
 						setSpanVal(newCell, 'rowSpan', rowSpan2);
 
 						rowElm.insertBefore(newCell, rowElm.cells[x]);
@@ -475,17 +478,40 @@ define("tinymce/tableplugin/TableGrid", [
 			tableElm = dom.getParent(rowElm, 'table');
 
 			// Insert a blank row to split on (Tiny will clean this up)
-			newRow = cloneNode(rowElm, false);
+			newRow = fireNewRow(cloneNode(rowElm, false));
 			rowElm.parentNode.insertBefore(newRow, rowElm);
 
-			// If original table has a thead row, copy that here
+			// If original table has a thead row, clone it
 			thead = dom.select('thead', tableElm);
 			if (thead.length > 0) {
-				newThead = cloneNode(thead[0], true);
+				newThead = fireNewRow(cloneNode(thead[0], true));
 			}
 
-			// Create new table splitting on current row
-			dom.split(tableElm, newRow);
+			// Create new table splitting on current row and replacing it with BR
+			// This is a 'copy' of dom.split, but without the trimNode() which
+			// was removing empty cells.
+
+			// Get before chunk
+			r = dom.createRng();
+			r.setStart(tableElm.parentNode, dom.nodeIndex(tableElm));
+			r.setEnd(newRow.parentNode, dom.nodeIndex(newRow));
+			bef = r.extractContents();
+
+			// Get after chunk
+			r = dom.createRng();
+			r.setStart(newRow.parentNode, dom.nodeIndex(newRow) + 1);
+			r.setEnd(tableElm.parentNode, dom.nodeIndex(tableElm) + 1);
+			aft = r.extractContents();
+
+			// Insert before chunk
+			pa = tableElm.parentNode;
+			pa.insertBefore(bef, tableElm);
+
+			pa.insertBefore(editor.getDoc().createElement('BR'), tableElm);
+
+			// Insert after chunk
+			pa.insertBefore(aft, tableElm);
+			dom.remove(tableElm);
 
 			newTableElm = dom.getParent(rowElm, 'table');
 
@@ -496,10 +522,6 @@ define("tinymce/tableplugin/TableGrid", [
 					bodyElm[0].parentNode.insertBefore(newThead, bodyElm[0]);
 				}
 			}
-
-			// Insert BR before tableElm
-			brElm = editor.getDoc().createElement('BR');
-			newTableElm.parentNode.insertBefore(brElm, newTableElm);
 		}
 
 		function insertRow(before) {
